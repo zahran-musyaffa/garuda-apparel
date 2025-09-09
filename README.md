@@ -31,3 +31,6 @@ every changes in models.py need to be migrated. migration work to similar databs
 
 ## Why Django framework chosen as starting point for learning software development
 I think because Django already has many feature template, so students doesnt need to start from beginnning and go to software consept like MVT.
+
+## Feedback for TA for Tutorial 1
+none

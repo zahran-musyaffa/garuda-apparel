@@ -88,7 +88,6 @@ WSGI_APPLICATION = 'garuda_apparel.wsgi.application'
 #     }
 # }
 
-print(PRODUCTION)
 
 # Database configuration
 if PRODUCTION:
@@ -100,7 +99,7 @@ if PRODUCTION:
             'USER': os.getenv('DB_USER'),
             'PASSWORD': os.getenv('DB_PASSWORD'),
             'HOST': os.getenv('DB_HOST'),
-            'PORT': int(os.getenv('DB_PORT')),
+            'PORT': os.getenv('DB_PORT'),
             'OPTIONS': {
                 'options': f"-c search_path={os.getenv('SCHEMA', 'public')}"
             }

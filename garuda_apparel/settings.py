@@ -15,7 +15,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(BASE_DIR / ".env.prod")  # ✅ paksa baca .env.prod
+load_dotenv(BASE_DIR / ".env.prod")  
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -89,6 +89,8 @@ WSGI_APPLICATION = 'garuda_apparel.wsgi.application'
 #     }
 # }
 
+print(PRODUCTION)
+
 # Database configuration
 if PRODUCTION:
     # Production: use PostgreSQL with credentials from environment variables
@@ -99,7 +101,7 @@ if PRODUCTION:
             'USER': os.getenv('DB_USER'),
             'PASSWORD': os.getenv('DB_PASSWORD'),
             'HOST': os.getenv('DB_HOST'),
-            'PORT': int(os.getenv('DB_PORT')),
+            'PORT': os.getenv('DB_PORT'),
             'OPTIONS': {
                 'options': f"-c search_path={os.getenv('SCHEMA', 'public')}"
             }
@@ -155,4 +157,4 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-print("DB_PORT from env:", repr(os.getenv('DB_PORT')))
+

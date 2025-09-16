@@ -35,6 +35,8 @@ I think because Django already has many feature template, so students doesnt nee
 ## Feedback for TA for Tutorial 1
 none
 
+
+
 # Garuda Apparel - Assignment 3 
 
 ## Why do we need data delivery in implementing a platform?

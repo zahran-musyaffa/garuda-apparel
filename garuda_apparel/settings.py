@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-11*=4^o%+8&fl%v1#c7m!v4oe4@7aqkynv(yne@o5+1ktlns#s
 
 PRODUCTION = os.getenv('PRODUCTION', 'False').lower() == 'true'
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "zahran-musyaffa-garudaapparel.pbp.cs.ui.ac.id"]
 
@@ -99,7 +99,7 @@ if PRODUCTION:
             'USER': os.getenv('DB_USER'),
             'PASSWORD': os.getenv('DB_PASSWORD'),
             'HOST': os.getenv('DB_HOST'),
-            'PORT': os.getenv('DB_PORT'),
+            'PORT': int(os.getenv('DB_PORT',5432)),
             'OPTIONS': {
                 'options': f"-c search_path={os.getenv('SCHEMA', 'public')}"
             }

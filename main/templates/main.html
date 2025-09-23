@@ -9,34 +9,48 @@
 <h5>Class: </h5>
 <p>{{ class }}</p>
 
-<a href="{% url 'main:create_news' %}">
+<a href="{% url 'main:create_product' %}">
   <button>+ Add Products</button>
 </a>
 
+<br>
+
+<a href="{%url 'main:logout' %}">
+  <button>Logout</button>
+</a>
+
+<h5>Last Login: {{ last_login }} </h5>
+
+<a href="?filter=all">
+  <button type="button">All Products</button>
+</a>
+<a href="?filter=my">
+  <button type="button">My Products</button>
+</a> 
 <hr>
 
-{% if not news_list %}
-<p>No news data available in Football News.</p>
+{% if not product_list %}
+<p>No products available in Garuda Apparel.</p>
 {% else %}
 
-{% for news in news_list %}
+{% for product in product_list %}
 <div>
-  <h2><a href="{% url 'main:show_news' news.id %}">{{ news.name }}</a></h2>
+  <h2><a href="{% url 'main:show_product' product.id %}">{{ product.name }}</a></h2>
 
-  <p><b>{{ news.get_category_display }}</b>{% if news.is_featured %} | 
-    <b>Featured</b>{% endif %}{% if news.is_news_hot %} | 
-    <b>Hot</b>{% endif %} | <i>{{ news.created_at|date:"d M Y H:i" }}</i> 
-    | Views: {{ news.news_views }}</p>
+  <p><b>{{ product.get_category_display }}</b>{% if product.is_featured %} | 
+    <b>Featured</b>{% endif %}{% if product.is_news_hot %} | 
+    <b>Hot</b>{% endif %} | <i>{{ product.created_at|date:"d M Y H:i" }}</i> 
+    | Views: {{ product.news_views }}</p>
 
-  {% if news.thumbnail %}
-  <img src="{{ news.thumbnail }}" alt="thumbnail" width="300" height="280">
+  {% if product.thumbnail %}
+  <img src="{{ product.thumbnail }}" alt="thumbnail" width="300" height="280">
   <br />
   {% endif %}
 
-  <!-- <p>{{ news.description|truncatewords:25 }}...</p> -->
+  <!-- <p>{{ product.description|truncatewords:25 }}...</p> -->
 
-  <p><a href="{% url 'main:show_news' news.id %}"><button>Product Details</button></a></p>
-  <form method="post" action="{% url 'main:delete_news' news.id %}" ">
+  <p><a href="{% url 'main:show_product' product.id %}"><button>Product Details</button></a></p>
+  <form method="post" action="{% url 'main:delete_product' product.id %}" ">
     {% csrf_token %}
     <button>Delete product</button>
   </form>

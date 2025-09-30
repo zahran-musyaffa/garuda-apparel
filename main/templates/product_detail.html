@@ -1,25 +1,82 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% load static %}
+
+{% block meta %}
+<title>{{ product.name }} - Product Detail</title>
+{% endblock meta %}
+
 {% block content %}
-<p><a href="{% url 'main:show_main' %}"><button>← Back to Main Page</button></a></p>
+<div class="bg-gray-50 w-full min-h-screen">
+	<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+		<!-- Back -->
+		<div class="mb-6">
+			<a href="{% url 'main:show_main' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">← Back to product</a>
+		</div>
 
-<h1>{{ product.name }}</h1>
-<p><b>Category:</b> {{ product.get_category_display }}{% if product.is_featured %} | 
-    <b>Featured</b>{% endif %}{% if product.is_news_hot %} | 
-    <b>Hot</b>{% endif %} | <b>Price:</b> {{ product.price }} | 
-    Views: {{ product.news_views }}</p>
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+			<!-- Left: Image / Gallery -->
+			<div class="bg-white border border-gray-200 rounded-lg p-4">
+				{% if product.thumbnail %}
+					<img src="{{ product.thumbnail }}" alt="{{ product.name }}" class="w-full aspect-square object-cover rounded-md"/>
+				{% else %}
+					<div class="w-full aspect-square bg-gray-100 rounded-md flex items-center justify-center text-gray-400">No image</div>
+				{% endif %}
+				<!-- Thumbnails row (static placeholder) -->
+				<div class="mt-4 flex gap-3">
+					<div class="w-20 h-20 rounded-md bg-gray-100 overflow-hidden border"><img src="{{ product.thumbnail }}" alt="thumb" class="w-full h-full object-cover"></div>
+					<div class="w-20 h-20 rounded-md bg-gray-100 overflow-hidden border opacity-70"><img src="{{ product.thumbnail }}" alt="thumb" class="w-full h-full object-cover"></div>
+					<div class="w-20 h-20 rounded-md bg-gray-100 overflow-hidden border opacity-70"><img src="{{ product.thumbnail }}" alt="thumb" class="w-full h-full object-cover"></div>
+				</div>
+			</div>
 
-{% if product.thumbnail %}
-<img src="{{ product.thumbnail }}" alt="Product thumbnail" width="300">
-<br /><br />
-{% endif %}
+			<!-- Right: Info panel -->
+			<div>
+				<div class="flex items-center gap-2 mb-3">
+					<span class="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-green-600 text-white">{{ product.get_category_display }}</span>
+					{% if product.is_featured %}
+						<span class="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-yellow-100 text-yellow-800">Featured</span>
+					{% endif %}
+					{% if product.is_product_hot %}
+						<span class="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-red-100 text-red-800">Hot</span>
+					{% endif %}
+				</div>
 
-<p><b>Description:</b> {{ product.description }}</p>
+				<h1 class="text-3xl sm:text-4xl font-bold text-gray-900 leading-tight">{{ product.name }}</h1>
+                <div class="mt-3 flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                    <span>{{ product.product_views }} views</span>
+                    <span>Author: <span class="font-medium text-gray-700">{{ product.user.username }}</span></span>
+                  </div>
+				<p class="text-xl sm:text-2xl font-semibold text-gray-900 mt-4">{{ product.price_style }}</p>
 
-{% if product.user %}
-    <p>Author: {{ product.user.username }}</p>
-{% else %}
-    <p>Author: Anonymous</p>
-{% endif %}
+				<div class="mt-6 flex items-center gap-2">
+					{% if product.status == 'sold' %}
+						<span class="text-red-600"><i class="fa-solid fa-circle-xmark"></i></span>
+						<span class="text-sm text-red-700">{{ product.get_status_display }}</span>
+					{% else %}
+						<span class="text-green-600"><i class="fa-solid fa-circle-check"></i></span>
+						<span class="text-sm text-gray-700">{{ product.get_status_display }}</span>
+					{% endif %}
+				</div>
 
+				<div class="mt-8">
+					<h2 class="text-base font-semibold text-gray-900 mb-4">Description</h2>
+					<div class="text-gray-700 leading-relaxed whitespace-pre-line">{{ product.description }}</div>
+				</div>
+				
+                <div class="h-52"></div> 
+				<div class="mt-10">
+                    <a href="{% url 'main:show_main' %}"
+                    class="w-full inline-flex items-center justify-center gap-2 bg-red-800 text-white font-semibold py-3 rounded-md hover:bg-red-900 transition shadow-sm ring-1 ring-inset ring-yellow-500">
+                    <i class="fa-solid fa-bag-shopping"></i>
+						<span>Buy</span>
+                </a>
+					</button>
+				</div>  
 
+				<!-- Meta info -->
+				
+			</div>
+		</div>
+	</div>
+</div>
 {% endblock content %}

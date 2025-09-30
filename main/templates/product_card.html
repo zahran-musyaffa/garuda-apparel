@@ -1,0 +1,40 @@
+{% load static %}
+<div class="carousel-item">
+  <!-- Product Title Overlay -->
+  
+  {% if product.thumbnail %}
+    <img src="{{ product.thumbnail }}" alt="{{ product.name }}" class="carousel-item__img" />
+  {% else %}
+    <img src="https://images.pexels.com/photos/1680140/pexels-photo-1680140.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260" alt="{{ product.name }}" class="carousel-item__img" />
+  {% endif %}
+  
+  <div class="carousel-item__details">
+    <div class="controls">
+      <a href="{% url 'main:show_product' product.id %}" class="control-link">
+        <span class="fas fa-play-circle"></span>
+      </a>
+      {% if user.is_authenticated and product.user == user %}
+        <a href="{% url 'main:edit_product' product.id %}" class="control-link">
+          <span class="fas fa-edit"></span>
+        </a>
+        <a href="{% url 'main:delete_product' product.id %}" class="control-link">
+          <span class="fas fa-trash"></span>
+        </a>
+         
+        <!-- <form method="post" action="{% url 'main:delete_product' product.id %}" style="display:inline">
+          {% csrf_token %}
+          <button type="submit" class="control-link" title="Delete" onclick="return confirm('Delete this product?')">
+            <span class="fas fa-trash"></span>
+          </button>
+        </form> -->
+      {% else %}
+        <a href="{% url 'main:show_product' product.id %}" class="control-link">
+          <span class="fas fa-plus-circle"></span>
+        </a>
+      {% endif %}
+    </div>
+    <h2 class="carousel-item__details--title font-extrabold text-green-900 ">{{ product.name }}</h2>
+    <h6 class="carousel-item__details--subtitle">{{ product.get_category_display }} • {{ product.product_views }} views</h6>
+    <h4 class="carousel-item__details--subtitle">{{product.price_style}} </h6>
+  </div>
+</div>

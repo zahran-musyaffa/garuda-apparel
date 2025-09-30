@@ -1,0 +1,137 @@
+/* Product Card Styles */
+.carousel-item {
+  width: 300px;
+  height: 400px;
+  border-radius: 20px;
+  background-color: #95bcd6;
+  overflow: hidden;
+  margin-right: 5px;
+  display: inline-block;
+  cursor: pointer;
+  -webkit-transition: 1000ms all;
+  transition: 1000ms all;
+  -webkit-transform-origin: center left;
+  transform-origin: center left;
+  position: relative;
+  border: 2px solid gold;
+  box-sizing: border-box;
+  border-radius: 20px;
+}
+
+.carousel-item:hover {
+  -webkit-transform: scale(1.05);
+  transform: scale(1.05);
+}
+
+.carousel-item__img {
+  width: 300px;
+  height: 400px;
+  -o-object-fit: cover;
+  object-fit: cover;
+}
+
+.carousel-item__details {
+  background: -webkit-gradient(
+    linear,
+    left bottom,
+    left top,
+    from(rgba(0, 0, 0, 0.9)),
+    to(rgba(0, 0, 0, 0))
+  );
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.9) 0%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  font-size: 18px;
+  opacity: 0;
+  -webkit-transition: 450ms opacity;
+  transition: 450ms opacity;
+  padding: 10px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.carousel-item__details:hover {
+  opacity: 1;
+}
+
+.carousel-item__details span {
+  font-size: 0.9rem;
+  color: #2ecc71;
+}
+
+.carousel-item__details .controls {
+  padding-top: 250px;
+}
+
+.carousel-item__details .carousel-item__details--title,
+.carousel-item__details--subtitle {
+  color: #fff;
+  margin: 5px 0;
+}
+
+.carousel-item__details .control-link {
+  color: #2ecc71;
+  text-decoration: none;
+  margin-right: 15px;
+  font-size: 1.2rem;
+  transition: color 0.3s ease;
+}
+
+.carousel-item__details .control-link:hover {
+  color: #27ae60;
+}
+
+
+/* Form styles */
+.form-style form input, form textarea, form select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 2px solid #bcbcbc;
+    border-radius: 0.375rem;
+}
+.form-style form input:focus, form textarea:focus, form select:focus {
+    outline: none;
+    border-color: #a31616;
+    box-shadow: 0 0 0 3px #a31616;
+}
+
+.form-style input[type="checkbox"] {
+    width: 1.25rem;
+    height: 1.25rem;
+    padding: 0;
+    border: 2px solid #d1d5db;
+    border-radius: 0.375rem;
+    background-color: white;
+    cursor: pointer;
+    position: relative;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.form-style input[type="checkbox"]:checked {
+    background-color: #a31616;
+    border-color: #a31616;
+}
+
+.form-style input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: bold;
+    font-size: 0.875rem;
+}
+
+.form-style input[type="checkbox"]:focus {
+    outline: none;
+    border-color: #a31616;
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+}

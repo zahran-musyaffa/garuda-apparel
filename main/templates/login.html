@@ -39,9 +39,7 @@
         </div>
       {% endif %}
 
-      <form method="POST" action="" class="space-y-6">
-        {% csrf_token %}
-        
+      <form id="loginForm" class="space-y-6">
         <div>
           <label for="username" class="block text-sm font-medium text-[#a31616] mb-2">Username</label>
           <input 
@@ -103,4 +101,26 @@
     </div>
   </div>
 </div>
+<script>
+  document.getElementById('loginForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    const form = e.target;
+    const fd = new FormData(form);
+    try{
+      const res = await fetch("{% url 'main:login_ajax' %}", { method: 'POST', body: fd });
+      if(!res.ok){
+        const data = await res.json().catch(()=>({detail:'Invalid'}));
+        showToast('Login failed', data.detail||'Invalid credentials', 'error');
+        return;
+      }
+      const data = await res.json().catch(()=>({}));
+      const user = (data && data.username) ? data.username : '';
+      const greet = user ? `Welcome back, ${user}!` : 'Welcome back!';
+      showToast('Logged in', greet, 'success');
+      setTimeout(function(){ window.location.href = "{% url 'main:show_main' %}"; }, 800);
+    }catch(err){
+      showToast('Login error', err.message, 'error');
+    }
+  });
+</script>
 {% endblock content %}

@@ -59,6 +59,26 @@
   opacity: 1;
 }
 
+/* Make controls visible when the card itself is hovered or focused (better accessibility) */
+.carousel-item:hover .carousel-item__details,
+.carousel-item:focus-within .carousel-item__details {
+  opacity: 1;
+}
+
+/* On touch devices (no hover / coarse pointers), keep controls visible */
+@media (hover: none), (pointer: coarse) {
+  .carousel-item__details {
+    opacity: 1;
+  }
+}
+
+/* On small screens, always show controls to avoid requiring long-press */
+@media (max-width: 640px) {
+  .carousel-item__details {
+    opacity: 1;
+  }
+}
+
 .carousel-item__details span {
   font-size: 0.9rem;
   color: #2ecc71;
@@ -80,6 +100,7 @@
   margin-right: 15px;
   font-size: 1.2rem;
   transition: color 0.3s ease;
+  padding: 6px; /* easier tap target on mobile */
 }
 
 .carousel-item__details .control-link:hover {

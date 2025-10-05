@@ -40,8 +40,7 @@
         </div>
       {% endif %}
 
-      <form method="POST" action="" class="space-y-5">
-        {% csrf_token %}
+      <form id="registerForm" class="space-y-5">
         
         <div>
           <label for="username" class="block text-sm font-medium text-[#a31616] mb-2">Username</label>
@@ -113,7 +112,27 @@
         </p>
       </div>
       </div>
-    </div>
+  </div>
   </div>
 </div>
+<script>
+  document.getElementById('registerForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    try{
+      const res = await fetch("{% url 'main:register_ajax' %}", { method: 'POST', body: fd });
+      if(!res.ok){
+        const data = await res.json().catch(()=>({errors:{}}));
+        const firstField = Object.keys(data.errors||{})[0];
+        const msg = firstField ? `${firstField}: ${data.errors[firstField]}` : 'Registration failed';
+        showToast('Register failed', msg, 'error');
+        return;
+      }
+      showToast('Registered successfully', '', 'success');
+      window.location.href = "{% url 'main:login' %}";
+    }catch(err){
+      showToast('Register error', err.message, 'error');
+    }
+  });
+</script>
 {% endblock content %}

@@ -36,9 +36,7 @@
               <div class="text-sm font-medium text-gray-900">{{ name|default:user.username }}</div>
               <div class="text-xs text-gray-500">{{ npm|default:"Student" }} - {{ class|default:"Class" }}</div>
             </div>
-            <a href="{% url 'main:logout' %}" class="text-red-600 hover:text-red-700 font-medium transition-colors">
-              Logout
-            </a>
+            <button id="logoutBtn" class="text-red-600 hover:text-red-700 font-medium transition-colors">Logout</button>
           {% else %}
             <a href="{% url 'main:login' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">
               Login
@@ -78,7 +76,7 @@
             <a href="{% url 'main:show_main' %}?category=accessories" class="block text-gray-600 hover:text-gray-900 font-medium py-2 transition-colors">Accessories</a>
             <a href="{% url 'main:show_main' %}" class="block text-gray-600 hover:text-gray-900 font-medium py-2 transition-colors">All</a>
           </div>
-          <a href="{% url 'main:create_product' %}" class="block text-gray-600 hover:text-gray-900 font-medium py-3 transition-colors">Create product</a>
+          <a href="{% url 'main:create_product' %}" id="createProductLinkMobile" class="block text-gray-600 hover:text-gray-900 font-medium py-3 transition-colors">Create product</a>
         </div>
         
         <!-- Mobile User Section -->
@@ -88,9 +86,7 @@
               <div class="font-medium text-gray-900">{{ name|default:user.username }}</div>
               <div class="text-sm text-gray-500">{{ npm|default:"Student" }} - {{ class|default:"Class" }}</div>
             </div>
-            <a href="{% url 'main:logout' %}" class="block text-red-600 hover:text-red-700 font-medium py-3 transition-colors">
-              Logout
-            </a>
+            <button id="logoutBtnMobile" class="block text-left w-full text-red-600 hover:text-red-700 font-medium py-3 transition-colors">Logout</button>
           {% else %}
             <div class="space-y-3">
               <a href="{% url 'main:login' %}" class="block text-gray-600 hover:text-gray-900 font-medium py-3 transition-colors">
@@ -110,6 +106,32 @@
     
       btn.addEventListener("click", () => {
         menu.classList.toggle("hidden");
+      });
+      // Intercept create product to open AJAX modal instead of navigating
+      document.getElementById('createProductLink')?.addEventListener('click', function(e){
+        e.preventDefault();
+        if (typeof showModal === 'function') showModal('create');
+      });
+      document.getElementById('createProductLinkMobile')?.addEventListener('click', function(e){
+        e.preventDefault();
+        if (typeof showModal === 'function') showModal('create');
+        menu.classList.add('hidden');
+      });
+      document.getElementById('logoutBtn')?.addEventListener('click', async function(){
+        try{
+          const res = await fetch("{% url 'main:logout_ajax' %}", { method: 'POST' });
+          if(!res.ok) throw new Error('Failed to logout');
+          showToast('Logged out', 'See you soon!', 'success');
+          setTimeout(function(){ window.location.href = "{% url 'main:login' %}"; }, 800);
+        }catch(err){ showToast('Logout error', err.message, 'error'); }
+      });
+      document.getElementById('logoutBtnMobile')?.addEventListener('click', async function(){
+        try{
+          const res = await fetch("{% url 'main:logout_ajax' %}", { method: 'POST' });
+          if(!res.ok) throw new Error('Failed to logout');
+          showToast('Logged out', 'See you soon!', 'success');
+          setTimeout(function(){ window.location.href = "{% url 'main:login' %}"; }, 800);
+        }catch(err){ showToast('Logout error', err.message, 'error'); }
       });
     </script>
   </nav>

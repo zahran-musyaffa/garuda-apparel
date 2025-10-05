@@ -25,33 +25,164 @@
             <a href="?filter=my" class="{% if request.GET.filter == 'my' %} bg-red-600 text-white{% else %}bg-white text-gray-700 border border-gray-300{% endif %} px-4 py-2 rounded-md font-medium transition-colors hover:bg-red-00 hover:text-white">
               My product
             </a>
+            <button id="createBtn" class="px-3 py-1.5 bg-red-600 text-white rounded hover:bg-red-700 transition-colors">Create product by AJAX</button>
           </div>
-          {% if user.is_authenticated %}
-            <div class="text-sm text-gray-500">
-              Last login: {{ last_login }}
-            </div>
-          {% endif %}
+          <div class="flex items-center gap-3">
+            <button id="refreshBtn" class="px-3 py-1.5 bg-white text-green-700 outline outline-1 outline-green-600 rounded hover:bg-green-600 hover:text-white transition-colors">Refresh</button>
+            {% if user.is_authenticated %}
+              <div class="text-sm text-gray-500">Last login: {{ last_login }}</div>
+            {% endif %}
+          </div>
         </div>
 
         <!-- product Grid -->
         {% if not product_list %}
-          <div class="bg-white rounded-lg border border-gray-200 p-12 text-center">
+          <div id="empty" class="bg-white rounded-lg border border-gray-200 p-12 text-center">
             <div class="w-32 h-32 mx-auto mb-4">
               <img src="{% static 'image/no-product.png' %}" alt="No product available" class="w-full h-full object-contain">
             </div>
             <h3 class="text-lg font-medium text-gray-900 mb-2">No product found</h3>
             <p class="text-gray-500 mb-6">Be the first to share football product with the community.</p>
-            <a href="{% url 'main:create_product' %}" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
-              Create product
-            </a>
+            <a href="{% url 'main:create_product' %}" id="createLinkEmpty" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">Create product</a>
           </div>
         {% else %}
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for product in product_list %}
               {% include 'product_card.html' with product=product %}
             {% endfor %}
           </div>
         {% endif %}
+
+        <!-- Loading & Error States (subtle, matches white card style) -->
+        <div id="loading" class="bg-white rounded-lg border border-gray-200 p-6 text-center hidden">
+          <span class="text-gray-600">Loading products...</span>
+        </div>
+        <div id="error" class="bg-white rounded-lg border border-red-200 p-6 text-center text-red-700 hidden"></div>
       </div>
     </div>
+    <script>
+      // Progressive enhancement: keep your original server-rendered layout, enhance with AJAX
+      (function(){
+        const GRID = document.getElementById('grid');
+        const EMPTY = document.getElementById('empty');
+        const LIST_ENDPOINT = "{% url 'main:show_json' %}";
+        const CURRENT_USER_ID = "{{ user.id|default_if_none:'' }}";
+        const REFRESH_BTN = document.getElementById('refreshBtn');
+        const CREATE_BTN = document.getElementById('createBtn');
+        const CREATE_EMPTY_LINK = document.getElementById('createLinkEmpty');
+        const LOADING = document.getElementById('loading');
+        const ERROR = document.getElementById('error');
+
+        function buildCard(p){
+          const isOwner = CURRENT_USER_ID && Number(CURRENT_USER_ID) === Number(p.user_id);
+          const wrapper = document.createElement('div');
+          wrapper.innerHTML = `
+            <div class="carousel-item">
+              ${p.thumbnail ? `<img src="${DOMPurify.sanitize(p.thumbnail)}" alt="${DOMPurify.sanitize(p.name)}" class="carousel-item__img" />` : `
+                <img src="https://images.pexels.com/photos/1680140/pexels-photo-1680140.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260" alt="${DOMPurify.sanitize(p.name)}" class="carousel-item__img" />`}
+              <div class="carousel-item__details">
+                <div class="controls">
+                  <a href="{% url 'main:show_product' '0' %}" class="control-link" data-detail="${p.id}"><span class="fas fa-play-circle"></span></a>
+                  ${isOwner ? `
+                    <a href="{% url 'main:edit_product' 0 %}" class="control-link" data-edit="${p.id}"><span class="fas fa-edit"></span></a>
+                    <a href="{% url 'main:delete_product' 0 %}" class="control-link" data-delete="${p.id}"><span class="fas fa-trash"></span></a>
+                  ` : `
+                    <a href="{% url 'main:show_product' '0' %}" class="control-link" data-detail="${p.id}"><span class="fas fa-plus-circle"></span></a>
+                  `}
+                </div>
+                <h2 class="carousel-item__details--title font-extrabold text-red-900 ">${DOMPurify.sanitize(p.name)}</h2>
+                <h6 class="carousel-item__details--subtitle">${DOMPurify.sanitize(p.category)} • ${p.product_views} views</h6>
+                <h4 class="carousel-item__details--subtitle">Rp ${Number(p.price||0).toLocaleString('id-ID')}</h4>
+              </div>
+            </div>`;
+          const card = wrapper.firstElementChild;
+          // Fix URLs (replace placeholder 0)
+          card.querySelectorAll('[data-detail]')?.forEach(a=>{ a.href = a.href.replace('/0/', `/${p.id}/`); });
+          const editA = card.querySelector('[data-edit]');
+          if (editA) editA.href = editA.href.replace('/0/', `/${p.id}/`);
+          const delA = card.querySelector('[data-delete]');
+          if (delA) {
+            delA.addEventListener('click', function(ev){
+              ev.preventDefault();
+              showConfirm(String(p.id));
+            });
+            delA.href = delA.href.replace('/0/', `/${p.id}/`);
+          }
+          if (editA) {
+            editA.addEventListener('click', function(ev){
+              ev.preventDefault();
+              // Prefill modal and open
+              showModal('update', {
+                id: p.id,
+                name: p.name,
+                price: p.price,
+                description: p.description,
+                thumbnail: p.thumbnail,
+                category: p.category,
+                is_featured: p.is_featured,
+                status: p.status
+              });
+            });
+          }
+          return card;
+        }
+
+        function showSection({loading=false, errorMsg='', showGrid=false, showEmpty=false}){
+          if (LOADING) LOADING.classList.toggle('hidden', !loading);
+          if (ERROR) {
+            ERROR.classList.toggle('hidden', !errorMsg);
+            if (errorMsg) ERROR.textContent = errorMsg;
+          }
+          if (GRID) GRID.classList.toggle('hidden', !showGrid);
+          if (EMPTY) EMPTY.classList.toggle('hidden', !showEmpty);
+        }
+
+        async function refresh(){
+          try{
+            showSection({ loading: true });
+            const res = await fetch(LIST_ENDPOINT, { headers: { 'Accept': 'application/json' } });
+            if (!res.ok) throw new Error('Failed to load products');
+            const data = await res.json();
+            if (!Array.isArray(data) || data.length === 0){
+              showSection({ showEmpty: true });
+            } else {
+              if (GRID){
+                GRID.innerHTML = '';
+                data.forEach(p => GRID.appendChild(buildCard(p)));
+              }
+              showSection({ showGrid: true });
+            }
+          }catch(err){
+            console.error(err);
+            showSection({ errorMsg: err.message || 'Error loading products' });
+            showToast('Failed to load products', err.message || 'Error', 'error');
+          } finally {
+            if (LOADING) LOADING.classList.add('hidden');
+          }
+        }
+
+        // Auto-refresh on CRUD events
+        document.addEventListener('productCreated', refresh);
+        document.addEventListener('productUpdated', refresh);
+        document.addEventListener('productDeleted', refresh);
+
+        // Initial fetch
+        refresh();
+
+        // Refresh button
+        REFRESH_BTN?.addEventListener('click', refresh);
+
+        // Intercept "Create product" link in empty state to open modal
+        CREATE_EMPTY_LINK?.addEventListener('click', function(e){
+          e.preventDefault();
+          if (typeof showModal === 'function') showModal('create');
+        });
+
+        // Create button in filter section
+        CREATE_BTN?.addEventListener('click', function(e){
+          e.preventDefault();
+          if (typeof showModal === 'function') showModal('create');
+        });
+      })();
+    </script>
     {% endblock content %}

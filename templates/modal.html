@@ -1,0 +1,200 @@
+<!-- CRUD Modal -->
+<div id="crudModal" class="hidden fixed inset-0 z-50 w-full flex items-center justify-center bg-black bg-opacity-40">
+  <div id="crudModalContent" class="bg-white rounded-lg shadow-lg w-11/12 sm:w-3/5 md:w-1/2 lg:w-2/5 max-h-[90vh] overflow-y-auto transform transition-all duration-150 opacity-0 scale-95">
+    <div class="flex items-center justify-between p-4 border-b">
+      <div>
+        <h3 id="crudModalTitle" class="text-lg font-semibold text-gray-900">Create Product</h3>
+        <p id="crudModalSubtitle" class="text-sm text-gray-600 mt-1">Fill the form below</p>
+      </div>
+      <button type="button" class="text-gray-400 hover:text-gray-700 text-xl" onclick="hideModal()">&times;</button>
+    </div>
+    <div class="px-6 py-4 space-y-4">
+      <form id="productForm" class="form-style" novalidate>
+        <input type="hidden" id="product_id" name="id">
+        <div>
+          <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+          <input type="text" id="name" name="name" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2" required>
+        </div>
+        <div>
+          <label for="price" class="block text-sm font-medium text-gray-700">Price</label>
+          <input type="number" id="price" name="price" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2" min="0" required>
+        </div>
+        <div>
+          <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+          <textarea id="description" name="description" rows="3" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2" required></textarea>
+        </div>
+        <div>
+          <label for="thumbnail" class="block text-sm font-medium text-gray-700">Thumbnail URL</label>
+          <input type="url" id="thumbnail" name="thumbnail" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2">
+        </div>
+        <div>
+          <label for="category" class="block text-sm font-medium text-gray-700">Category</label>
+          <select id="category" name="category" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2" required>
+            <option value="">Choose a category</option>
+            <option value="jersey">Jersey</option>
+            <option value="jacket">Jacket</option>
+            <option value="shoes">Shoes</option>
+            <option value="ball">Ball</option>
+            <option value="socks">Socks</option>
+            <option value="accessories">Accessories</option>
+          </select>
+        </div>
+        <div class="flex items-center gap-2">
+          <input id="is_featured" name="is_featured" type="checkbox" class="w-4 h-4">
+          <label for="is_featured" class="text-sm text-gray-700">Featured</label>
+        </div>
+        <div>
+          <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+          <select id="status" name="status" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2" required>
+            <option value="available">Available</option>
+            <option value="sold">Sold</option>
+          </select>
+        </div>
+      </form>
+    </div>
+    <div class="flex flex-col sm:flex-row gap-3 p-6 border-t">
+      <button type="button" class="px-5 py-2 border border-gray-300 rounded-md" onclick="hideModal()">Cancel</button>
+      <button id="submitProduct" type="submit" form="productForm" class="flex-1 bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-md">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="confirmModal" class="hidden fixed inset-0 z-50 w-full flex items-center justify-center bg-black bg-opacity-40">
+  <div class="bg-white rounded-lg shadow-lg w-11/12 sm:w-[420px] transform transition-all duration-150 opacity-100 scale-100">
+    <div class="p-6">
+      <h3 class="text-lg font-semibold text-gray-900">Delete Product</h3>
+      <p class="text-sm text-gray-600 mt-2">Are you sure you want to delete this product? This action cannot be undone.</p>
+    </div>
+    <div class="flex gap-3 p-6 pt-0">
+      <button type="button" class="px-5 py-2 border border-gray-300 rounded-md" onclick="hideConfirm()">Cancel</button>
+      <button id="confirmDeleteBtn" type="button" class="flex-1 bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-md">Delete</button>
+    </div>
+  </div>
+  <input type="hidden" id="confirmProductId" />
+  <input type="hidden" id="confirmProductName" />
+  <script>
+    function showConfirm(productId) {
+      document.getElementById('confirmProductId').value = productId;
+      document.getElementById('confirmModal').classList.remove('hidden');
+    }
+    function hideConfirm() {
+      document.getElementById('confirmModal').classList.add('hidden');
+    }
+  </script>
+</div>
+
+<script>
+  function showModal(mode = 'create', product = null) {
+    const modal = document.getElementById('crudModal');
+    const modalContent = document.getElementById('crudModalContent');
+    const title = document.getElementById('crudModalTitle');
+    const subtitle = document.getElementById('crudModalSubtitle');
+    const form = document.getElementById('productForm');
+
+    if (mode === 'update' && product) {
+      title.textContent = 'Update Product';
+      subtitle.textContent = 'Edit the fields below';
+      form.id.value = product.id;
+      form.name.value = product.name;
+      form.price.value = product.price;
+      form.description.value = product.description;
+      form.thumbnail.value = product.thumbnail || '';
+      form.category.value = product.category;
+      form.is_featured.checked = !!product.is_featured;
+      form.status.value = product.status || 'available';
+    } else {
+      title.textContent = 'Create Product';
+      subtitle.textContent = 'Fill the form below';
+      form.reset();
+      form.id.value = '';
+    }
+
+    modal.classList.remove('hidden');
+    setTimeout(function() {
+      modalContent.classList.remove('opacity-0','scale-95');
+      modalContent.classList.add('opacity-100','scale-100');
+    }, 30);
+  }
+
+  function hideModal() {
+    const modal = document.getElementById('crudModal');
+    const modalContent = document.getElementById('crudModalContent');
+    modalContent.classList.add('opacity-0','scale-95');
+    modalContent.classList.remove('opacity-100','scale-100');
+    setTimeout(function(){ modal.classList.add('hidden'); }, 150);
+  }
+
+  document.getElementById('productForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    const form = e.target;
+    const isUpdate = !!form.id.value;
+
+    // Custom validation to show toast instead of native browser message
+    const nameVal = (form.name.value || '').trim();
+    const priceVal = Number(form.price.value);
+    const descVal = (form.description.value || '').trim();
+    const categoryVal = (form.category.value || '').trim();
+    const statusVal = (form.status.value || '').trim();
+    if (!nameVal) {
+      showToast('Validation error', 'Name is required.', 'error');
+      form.name.focus();
+      return;
+    }
+    if (!Number.isFinite(priceVal) || priceVal < 0) {
+      showToast('Validation error', 'Price must be a non-negative number.', 'error');
+      form.price.focus();
+      return;
+    }
+    if (!descVal) {
+      showToast('Validation error', 'Description is required.', 'error');
+      form.description.focus();
+      return;
+    }
+    if (!categoryVal) {
+      showToast('Validation error', 'Please select a category.', 'error');
+      form.category.focus();
+      return;
+    }
+    if (!statusVal) {
+      showToast('Validation error', 'Please select a status.', 'error');
+      form.status.focus();
+      return;
+    }
+    const CREATE_URL = (window.PRODUCT_CREATE_ENDPOINT) || `{% url 'main:create_product_ajax' %}`;
+    const UPDATE_URL_TMPL = (window.PRODUCT_UPDATE_ENDPOINT) || `{% url 'main:update_product_ajax' 0 %}`;
+    const endpoint = isUpdate ? UPDATE_URL_TMPL.replace('0', form.id.value) : CREATE_URL;
+    try {
+      const response = await fetch(endpoint, { method: 'POST', body: new FormData(form) });
+      if (!response.ok) throw new Error('Request failed');
+      hideModal();
+      form.reset();
+      if (isUpdate) {
+        showToast('Product updated', '', 'success');
+        document.dispatchEvent(new CustomEvent('productUpdated'));
+      } else {
+        showToast('Product created', '', 'success');
+        document.dispatchEvent(new CustomEvent('productCreated'));
+      }
+    } catch (err) {
+      showToast('Failed to submit product', err.message || 'Error', 'error');
+    }
+  });
+
+  document.getElementById('confirmDeleteBtn').addEventListener('click', async function(){
+    const id = document.getElementById('confirmProductId').value;
+    if (!id) return;
+    try {
+      const DELETE_URL_TMPL = (window.PRODUCT_DELETE_ENDPOINT) || `{% url 'main:delete_product_ajax' 0 %}`;
+      const endpoint = DELETE_URL_TMPL.replace('0', id);
+      const response = await fetch(endpoint, { method: 'POST' });
+      if (!response.ok) throw new Error('Delete failed');
+      hideConfirm();
+      showToast('Product deleted', '', 'success');
+      document.dispatchEvent(new CustomEvent('productDeleted'));
+    } catch (err) {
+      showToast('Failed to delete product', err.message || 'Error', 'error');
+    }
+  });
+</script>
+

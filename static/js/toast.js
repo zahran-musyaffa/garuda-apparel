@@ -5,7 +5,7 @@
 
   function pickIcon(type) {
     if (type === 'success') return '✅';
-    if (type === 'error') return '⛔';
+    if (type === 'error') return '❌'; 
     if (type === 'warning') return '⚠️';
     if (type === 'info') return 'ℹ️';
     return '🔔';

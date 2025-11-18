@@ -15,6 +15,14 @@ from .models import Car
 from django.http import HttpResponseRedirect, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.html import strip_tags
+import json
+import requests
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.html import strip_tags
+import json
+from django.http import JsonResponse
 
 
 # Create your views here.
@@ -262,6 +270,54 @@ def new_car(request):
     else:
         form = CarForm()
     return render(request, "create_card.html", {'form' : form})
+
+def proxy_image(request):
+    image_url = request.GET.get('url')
+    if not image_url:
+        return HttpResponse('No URL provided', status=400)
+    
+    try:
+        # Fetch image from external source
+        response = requests.get(image_url, timeout=10)
+        response.raise_for_status()
+        
+        # Return the image with proper content type
+        return HttpResponse(
+            response.content,
+            content_type=response.headers.get('Content-Type', 'image/jpeg')
+        )
+    except requests.RequestException as e:
+        return HttpResponse(f'Error fetching image: {str(e)}', status=500)
+
+@csrf_exempt
+def create_product_flutter(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        # Extract data, supporting both 'name'/'title' and 'description'/'content' keys
+        name = strip_tags(data.get("name") or data.get("title", ""))
+        description = strip_tags(data.get("description") or data.get("content", ""))
+        price = data.get("price", 0)
+        category = data.get("category", "")
+        thumbnail = data.get("thumbnail", "")
+        is_featured = data.get("is_featured", False)
+        status = data.get("status", "available")
+        user = request.user
+        
+        new_product = Product(
+            name=name, 
+            description=description,
+            price=price,
+            thumbnail=thumbnail,
+            category=category,
+            is_featured=is_featured,
+            status=status,
+            user=user
+        )
+        new_product.save()
+        
+        return JsonResponse({"status": "success"}, status=200)
+    else:
+        return JsonResponse({"status": "error"}, status=401)
 
 
 
